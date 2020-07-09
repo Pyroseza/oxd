@@ -45,6 +45,23 @@ public class RestResource {
     @Path("/health-check")
     @Produces(MediaType.APPLICATION_JSON)
     public String healthCheck() {
+        LOG.trace("httpRequest.getRemoteAddr(): {}", httpRequest.getRemoteAddr());
+        LOG.trace("httpRequest.getRemoteAddr(): {}", httpRequest.getRemoteHost());
+        InetAddress addr = null;
+        try {
+            addr = InetAddress.getByName(httpRequest.getRemoteAddr());
+
+            String host = addr.getHostName();
+            LOG.trace("hostname: {}", host);
+            LOG.trace("getRequestHeader: {}", httpRequest.getHeader("Origin"));
+            LOG.trace("Remote Addr: " + httpRequest.getRemoteAddr() +
+                    "; Remote Host: " + httpRequest.getRemoteHost() +
+                    "; Remote User: " + httpRequest.getRemoteUser() +
+                    "; Localname: " + httpRequest.getLocalName() +
+                    "; local hostname: " + java.net.InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         validateIpAddressAllowed(httpRequest.getRemoteAddr());
         return "{\"status\":\"running\"}";
     }
@@ -279,6 +296,23 @@ public class RestResource {
             TracingUtil.log("Request parameters: " + paramsAsString);
             TracingUtil.log("CommandType: " + commandType);
 
+            LOG.trace("httpRequest.getRemoteAddr(): {}", httpRequest.getRemoteAddr());
+            LOG.trace("httpRequest.getRemoteAddr(): {}", httpRequest.getRemoteHost());
+            InetAddress addr = null;
+            try {
+                addr = InetAddress.getByName(httpRequest.getRemoteAddr());
+
+                String host = addr.getHostName();
+                LOG.trace("hostname: {}", host);
+                LOG.trace("getRequestHeader: {}", httpRequest.getHeader("Origin"));
+                LOG.trace("Remote Addr: " + httpRequest.getRemoteAddr() +
+                        "; Remote Host: " + httpRequest.getRemoteHost() +
+                        "; Remote User: " + httpRequest.getRemoteUser() +
+                        "; Localname: " + httpRequest.getLocalName() +
+                        "; local hostname: " + java.net.InetAddress.getLocalHost().getHostName());
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
             validateIpAddressAllowed(httpRequest.getRemoteAddr());
             Object forJsonConversion = getObjectForJsonConversion(commandType, paramsAsString, paramsClass, authorization, authorizationOxdId);
             String response = null;
