@@ -39,6 +39,7 @@ public class RestResource {
     @Context
     private HttpServletRequest httpRequest;
     private static final String LOCALHOST_IP_ADDRESS = "127.0.0.1";
+    private static final String LOCALHOST_IP_HOSTNAME = "localhost";
 
     public RestResource() {
     }
@@ -353,9 +354,28 @@ public class RestResource {
         if (bindIpAddresses.contains(callerIpAddress)) {
             return;
         }
+        LOG.trace("Caller ip_address did not matched with bindIpAddresses. Trying to fetch caller hostname...");
+        String callerHostname = getHostname(callerIpAddress);
+        LOG.trace("Obtained caller hostname is : {} ", callerHostname);
+        if (!Strings.isNullOrEmpty(callerHostname) && bindIpAddresses.stream().anyMatch(ipAddress -> ipAddress.equalsIgnoreCase(callerHostname))) {
+            return;
+        }
+
         LOG.error("The caller is not allowed to make request to oxd. To allow add ip_address of caller in `bind_ip_addresses` array of `oxd-server.yml`.");
         throw new HttpException(ErrorResponseCode.OXD_ACCESS_DENIED);
 
+    }
+
+    private static String getHostname (String ipAddress) {
+        InetAddress addr = null;
+        try {
+            addr = InetAddress.getByName(ipAddress);
+
+            return addr.getHostName();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private static <T extends IParams> Object getObjectForJsonConversion(CommandType commandType, String paramsAsString, Class<T> paramsClass, String authorization, String authorizationOxdId) {
